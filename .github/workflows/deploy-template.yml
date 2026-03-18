@@ -1,0 +1,72 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# deploy-template.yml  –  INFORMATIONAL ONLY, does NOT run automatically.
+#
+# This file is a reference template showing how a Railway deployment CI step
+# could be structured.  It uses NO real secrets or credentials.
+#
+# To activate automatic deploys:
+#   1. Go to Railway dashboard → your project → Settings → Source.
+#   2. Connect your GitHub repository and select the "main" branch.
+#   3. Railway will automatically redeploy on every push to main.
+#
+# If you want to trigger deploys from GitHub Actions instead, install the
+# Railway CLI and add a RAILWAY_TOKEN secret to your GitHub repository
+# (Settings → Secrets → Actions).
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Deploy to Railway (template – manual trigger only)
+
+# Only runs when triggered manually from the GitHub Actions tab.
+# Change to `push: branches: [main]` to enable automatic deploys.
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment (e.g. production)"
+        required: true
+        default: "production"
+
+jobs:
+  deploy:
+    name: Deploy via Railway CLI
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── Step 1: Install Railway CLI ──────────────────────────────────────
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      # ── Step 2: Authenticate (requires RAILWAY_TOKEN secret) ─────────────
+      # Add RAILWAY_TOKEN to: GitHub repo → Settings → Secrets → Actions
+      # Obtain the token from: Railway dashboard → Account → Tokens
+      - name: Authenticate with Railway
+        run: railway login --browserless
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+      # ── Step 3: Deploy API service ────────────────────────────────────────
+      - name: Deploy API
+        run: |
+          cd apps/api
+          railway up --service api --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+      # ── Step 4: Deploy Web service ────────────────────────────────────────
+      - name: Deploy Web
+        run: |
+          cd apps/web
+          railway up --service web --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+      # ── Step 5: Print public URLs (informational) ─────────────────────────
+      - name: Show deployment status
+        run: railway status
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "services": {
+    "api": {
+      "name": "api",
+      "source": {
+        "repo": "yashmunot18/yashoncodex",
+        "branch": "main",
+        "rootDirectory": "apps/api"
+      },
+      "build": {
+        "buildCommand": "npm install && npm run build"
+      },
+      "deploy": {
+        "startCommand": "node dist/index.js",
+        "healthcheckPath": "/health",
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 3
+      },
+      "variables": {
+        "NODE_ENV": "production",
+        "API_PORT": "4000",
+        "DATABASE_URL": "${{Postgres.DATABASE_URL}}",
+        "REDIS_URL": "${{Redis.REDIS_URL}}",
+        "RECEPTION_PROXY_BASE_URL": "",
+        "RECEPTION_PROXY_API_KEY": ""
+      }
+    },
+    "web": {
+      "name": "web",
+      "source": {
+        "repo": "yashmunot18/yashoncodex",
+        "branch": "main",
+        "rootDirectory": "apps/web"
+      },
+      "build": {
+        "buildCommand": "npm install && npm run build"
+      },
+      "deploy": {
+        "startCommand": "npm start",
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 3
+      },
+      "variables": {
+        "NODE_ENV": "production",
+        "WEB_PORT": "3000",
+        "NEXT_PUBLIC_API_URL": ""
+      }
+    }
+  },
+  "plugins": [
+    {
+      "name": "Postgres",
+      "plugin": "postgresql"
+    },
+    {
+      "name": "Redis",
+      "plugin": "redis"
+    }
+  ]
+}
