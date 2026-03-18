@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NDC QMS – Offline Preview</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 860px; margin: 40px auto; padding: 0 20px; color: #222; }
+    h1 { color: #1a56db; }
+    h2 { color: #1e429f; border-bottom: 2px solid #e5e7eb; padding-bottom: 6px; margin-top: 36px; }
+    h3 { color: #374151; margin-top: 24px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 12px; text-align: left; }
+    th { background: #f3f4f6; font-weight: bold; }
+    a { color: #1a56db; }
+    pre { background: #f9fafb; border: 1px solid #e5e7eb; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 13px; }
+    .note { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 12px 16px; border-radius: 4px; margin: 16px 0; }
+    .badge { display: inline-block; background: #dcfce7; color: #166534; border-radius: 4px; padding: 2px 8px; font-size: 12px; font-weight: bold; margin-left: 8px; }
+  </style>
+</head>
+<body>
+
+<h1>NDC Diagnostic Centre – Queue Management System <span class="badge">Offline Preview</span></h1>
+
+<div class="note">
+  <strong>No server needed.</strong> This page works completely offline in your browser.
+  All links below open plain text source files from this repository.
+  To read the full instructions, open <strong>OFFLINE_README.md</strong> in a text editor.
+</div>
+
+<h2>What this project does</h2>
+<p>
+  A full-stack queue management system for a diagnostic centre.
+  Patients are registered at reception, automatically routed through test rooms
+  (Sonography, Blood Collection, X-Ray, etc.), and their status is shown on a TV display.
+  Built with <strong>Next.js 15</strong> (web) and <strong>Fastify + Prisma</strong> (API).
+</p>
+
+<h2>Web pages (apps/web/src/app)</h2>
+<table>
+  <thead>
+    <tr><th>Page</th><th>Route</th><th>Source file</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Home / Role selector</td><td>/</td><td><a href="../apps/web/src/app/page.tsx">apps/web/src/app/page.tsx</a></td></tr>
+    <tr><td>Floor Manager</td><td>/floor</td><td><a href="../apps/web/src/app/floor/page.tsx">apps/web/src/app/floor/page.tsx</a></td></tr>
+    <tr><td>Room Technician</td><td>/room</td><td><a href="../apps/web/src/app/room/page.tsx">apps/web/src/app/room/page.tsx</a></td></tr>
+    <tr><td>Patient Status</td><td>/patient</td><td><a href="../apps/web/src/app/patient/page.tsx">apps/web/src/app/patient/page.tsx</a></td></tr>
+    <tr><td>TV Display</td><td>/tv</td><td><a href="../apps/web/src/app/tv/page.tsx">apps/web/src/app/tv/page.tsx</a></td></tr>
+    <tr><td>Admin Panel</td><td>/admin</td><td><a href="../apps/web/src/app/admin/page.tsx">apps/web/src/app/admin/page.tsx</a></td></tr>
+    <tr><td>API helper (all calls)</td><td>—</td><td><a href="../apps/web/src/lib/api.ts">apps/web/src/lib/api.ts</a></td></tr>
+  </tbody>
+</table>
+
+<h2>API routes (apps/api/src/routes)</h2>
+<table>
+  <thead>
+    <tr><th>Endpoint</th><th>Method</th><th>Source file</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>/health</td><td>GET</td><td><a href="../apps/api/src/routes/health.ts">apps/api/src/routes/health.ts</a></td></tr>
+    <tr><td>/api/sync/webhook</td><td>POST</td><td><a href="../apps/api/src/routes/sync.ts">apps/api/src/routes/sync.ts</a></td></tr>
+    <tr><td>/api/floor/dashboard</td><td>GET</td><td><a href="../apps/api/src/routes/floor.ts">apps/api/src/routes/floor.ts</a></td></tr>
+    <tr><td>/api/queue/…</td><td>POST</td><td><a href="../apps/api/src/routes/queue.ts">apps/api/src/routes/queue.ts</a></td></tr>
+    <tr><td>/api/patient/:visitId/status</td><td>GET</td><td><a href="../apps/api/src/routes/patient.ts">apps/api/src/routes/patient.ts</a></td></tr>
+    <tr><td>/api/display/tv &amp; /floor</td><td>GET</td><td><a href="../apps/api/src/routes/display.ts">apps/api/src/routes/display.ts</a></td></tr>
+    <tr><td>API entry point</td><td>—</td><td><a href="../apps/api/src/index.ts">apps/api/src/index.ts</a></td></tr>
+    <tr><td>Database schema</td><td>—</td><td><a href="../apps/api/prisma/schema.prisma">apps/api/prisma/schema.prisma</a></td></tr>
+  </tbody>
+</table>
+
+<h2>Sample data</h2>
+<p>
+  Open <a href="sample_data.json">sample_data.json</a> to see the registration payload format.
+  Below is the same example inline:
+</p>
+<pre id="json-preview">Loading sample_data.json…</pre>
+
+<h2>Environment variables</h2>
+<p>
+  No real secrets are stored in this repository.
+  Open <a href="../.env.example">.env.example</a> to see all variable names and their descriptions.
+</p>
+
+<h2>How to re-enable deployment</h2>
+<p>The following files were renamed to <code>.disabled</code> to prevent accidental deploys:</p>
+<table>
+  <thead><tr><th>Disabled name</th><th>Original name</th></tr></thead>
+  <tbody>
+    <tr><td>.github/workflows/deploy-template.yml.disabled</td><td>.github/workflows/deploy-template.yml</td></tr>
+    <tr><td>docker-compose.disabled.yml</td><td>docker-compose.yml</td></tr>
+    <tr><td>.railway.disabled/</td><td>.railway/</td></tr>
+  </tbody>
+</table>
+<p>Rename them back (remove the <code>.disabled</code> suffix) to restore Docker / Railway / GitHub Actions behaviour.</p>
+<p>See <a href="../OFFLINE_README.md">OFFLINE_README.md</a> for exact rename commands.</p>
+
+<script>
+  fetch('sample_data.json')
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('json-preview').textContent = JSON.stringify(data, null, 2);
+    })
+    .catch(() => {
+      document.getElementById('json-preview').textContent =
+        '(Could not load automatically — open sample_data.json directly in your browser or text editor)';
+    });
+</script>
+</body>
+</html>

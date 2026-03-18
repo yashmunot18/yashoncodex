@@ -1,5 +1,20 @@
 # NDC Diagnostic Centre – Queue Management System
 
+---
+
+## Offline preview
+
+You can read all source files and sample data **without running Docker, Railway, or any server**.
+
+1. Download as a ZIP from GitHub:
+   `https://github.com/yashmunot18/yashoncodex/archive/refs/heads/main.zip`
+2. Extract the ZIP and open **[offline_preview/sample_page.html](offline_preview/sample_page.html)** in any browser — it links to all key source files and shows a sample API response.
+3. Read **[OFFLINE_README.md](OFFLINE_README.md)** for full instructions, a list of files to inspect, and how to re-enable deployment if needed.
+
+> **Note:** deployment files (GitHub Actions workflow, Docker Compose, Railway config) have been renamed to `*.disabled` in this branch to prevent accidental deploys. To re-enable them, rename them back (remove the `.disabled` suffix). See [OFFLINE_README.md](OFFLINE_README.md) for exact commands.
+
+---
+
 A production-ready, Dockerized end-to-end queue management system for **NDC DIAGNOSTIC CENTRE (Centre: THANE)**.
 
 ---
