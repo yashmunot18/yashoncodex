@@ -15,6 +15,32 @@ A production-ready, Dockerized end-to-end queue management system for **NDC DIAG
 
 ---
 
+## 🚀 Super Simple Quickstart
+
+**Not technical? No problem.** There are three ways to run this app — no coding required:
+
+| Option | Best for | How |
+|---|---|---|
+| ☁️ **Railway (Cloud)** | Anyone — no local install | Follow the click-by-click guide |
+| 🪟 **PowerShell script** | Windows users with Docker Desktop | One command, everything automatic |
+| 🐧 **WSL script** | Windows users without Docker | Script installs everything for you |
+
+👉 **[Open the full beginner guide → quickstart/README_QUICKSTART.md](quickstart/README_QUICKSTART.md)**
+
+**Fastest start on Windows (with Docker Desktop):**
+```powershell
+powershell -ExecutionPolicy Bypass -File quickstart\start-system.ps1
+```
+
+**Fastest start on WSL / Linux:**
+```bash
+bash quickstart/start-wsl.sh
+```
+
+**Recommended for non-technical users:** Use [Railway](https://railway.app) — free tier, no local install, just connect your GitHub and deploy. Full instructions in [quickstart/README_QUICKSTART.md](quickstart/README_QUICKSTART.md).
+
+---
+
 ## Quick Start (5 steps)
 
 ### Step 1 – Prerequisites
