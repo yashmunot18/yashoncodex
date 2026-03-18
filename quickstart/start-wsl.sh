@@ -135,6 +135,8 @@ echo $! > /tmp/ndc_api.pid
 ok "API started (PID $(cat /tmp/ndc_api.pid)) → logs at /tmp/ndc_api.log"
 
 cd "$REPO_ROOT/apps/web"
+info "Building Web (Next.js production build)..."
+npm run build >/dev/null 2>&1
 nohup npm run start > /tmp/ndc_web.log 2>&1 &
 echo $! > /tmp/ndc_web.pid
 ok "Web started (PID $(cat /tmp/ndc_web.pid)) → logs at /tmp/ndc_web.log"
