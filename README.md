@@ -140,6 +140,87 @@ curl -X POST http://localhost:4000/api/sync/webhook \
 
 ---
 
+## Managed Deployment (Railway)
+
+> **No Docker or command line required.**  Railway is a cloud platform that builds and runs the system for you.  All you need is a browser and a GitHub account.
+
+### Step 1 – Create a Railway account
+1. Go to [railway.app](https://railway.app) and click **Login**.
+2. Choose **Login with GitHub** and authorize Railway to access your account.
+
+### Step 2 – Create a new project and connect the repository
+1. In the Railway dashboard click **+ New Project**.
+2. Select **Deploy from GitHub repo**.
+3. Search for **yashmunot18/yashoncodex** (or your own fork) and click **Deploy Now**.
+4. When prompted, select the **main** branch.
+   Railway will detect the two services (`api` and `web`) automatically.
+
+### Step 3 – Provision Postgres and Redis add-ons
+1. Inside your project, click **+ New** → **Database** → **Add PostgreSQL**.
+2. Click **+ New** → **Database** → **Add Redis**.
+   Railway will create `DATABASE_URL` and `REDIS_URL` environment variables and share them with your services automatically.
+
+### Step 4 – Set your environment variables
+For each service that needs them, open the service → **Variables** tab and add:
+
+| Variable | Where to find the value |
+|---|---|
+| `DATABASE_URL` | Auto-filled by Railway Postgres add-on |
+| `REDIS_URL` | Auto-filled by Railway Redis add-on |
+| `RECEPTION_PROXY_BASE_URL` | URL of your reception software API |
+| `RECEPTION_PROXY_API_KEY` | API key from your reception software provider |
+| `API_PORT` | Set to `4000` |
+| `WEB_PORT` | Set to `3000` |
+
+> See `.railway/config.example.env` for the full list of variable names.  
+> ⚠️ **Never share or commit real API keys or database passwords.**
+
+### Step 5 – Trigger the first deployment
+Railway automatically builds and deploys every time you push to **main**.  
+To trigger manually: open the service → **Deployments** tab → click **Deploy**.
+
+Build logs appear in real time.  A green ✓ means the service is live.
+
+### Step 6 – Find your public URLs
+1. Open the **api** service → **Settings** tab → copy the **Public Domain** (e.g. `api-xxx.railway.app`).
+2. Open the **web** service → **Settings** → copy its public domain.
+3. Set the web service variable `NEXT_PUBLIC_API_URL` to `https://<your-api-domain>` (no trailing slash).
+
+### Step 7 – First-run checklist
+- [ ] `https://<api-domain>/health` returns `{"status":"ok"}`
+- [ ] `https://<web-domain>` loads the home / role-selector page
+- [ ] Floor Manager, Room Technician, TV Display views all load correctly
+- [ ] Admin Panel at `/admin` shows the pre-loaded rooms and tests
+
+### Manual test – add a registration via API
+Replace `<api-domain>` with your Railway API domain:
+
+```bash
+curl -X POST https://<api-domain>/api/sync/webhook \
+  -H "Content-Type: application/json" \
+  -d '{
+    "registrations": [{
+      "id": "TEST-001",
+      "patientName": "Rahul Sharma",
+      "patientAge": 35,
+      "patientGender": "Male",
+      "patientPhone": "9876543210",
+      "registrationNo": "NDC-2024-001",
+      "tests": ["USG-ABD", "CBC", "XR-CHEST"],
+      "visitDate": "2024-01-01"
+    }]
+  }'
+```
+
+A `200` response confirms the API and database are connected correctly.
+
+### Rolling back or stopping the project
+- **Rollback:** Open the service → **Deployments** tab → click the three-dot menu on a previous deployment → **Rollback**.
+- **Stop (pause billing):** Open **Project Settings** → **Danger Zone** → **Suspend Project**.
+- **Delete:** Open **Project Settings** → **Danger Zone** → **Delete Project** (⚠️ permanent — deletes all data).
+
+---
+
 ## Troubleshooting
 
 ### ❌ Port conflict (port 3000 or 4000 already in use)
