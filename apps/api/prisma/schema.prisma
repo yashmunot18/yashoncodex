@@ -1,0 +1,229 @@
+// NDC Diagnostic Centre – Queue Management System
+// Prisma schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Organisation ────────────────────────────────────────
+model Company {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  centers   Center[]
+}
+
+model Center {
+  id         String       @id @default(cuid())
+  companyId  String
+  company    Company      @relation(fields: [companyId], references: [id])
+  name       String
+  city       String
+  address    String?
+  phone      String?
+  createdAt  DateTime     @default(now())
+  rooms      Room[]
+  tests      Test[]
+  visits     Visit[]
+  queueRules QueueRule[]
+  settings   CenterSettings?
+}
+
+// ─── Center settings ─────────────────────────────────────
+model CenterSettings {
+  id                        String   @id @default(cuid())
+  centerId                  String   @unique
+  center                    Center   @relation(fields: [centerId], references: [id])
+  sonographyNotReadyWaitMin Int      @default(30)
+  autoRouteOnComplete       Boolean  @default(true)
+  pollIntervalMs            Int      @default(60000)
+  updatedAt                 DateTime @updatedAt
+}
+
+// ─── Rooms ───────────────────────────────────────────────
+model Room {
+  id           String           @id @default(cuid())
+  centerId     String
+  center       Center           @relation(fields: [centerId], references: [id])
+  name         String
+  type         RoomType         @default(OTHER)
+  isActive     Boolean          @default(true)
+  capacity     Int              @default(1)
+  displayOrder Int              @default(0)
+  createdAt    DateTime         @default(now())
+  mappings     TestRoomMapping[]
+  queueEntries QueueEntry[]
+  slots        SonographySlot[]
+}
+
+enum RoomType {
+  SONOGRAPHY
+  BLOOD_COLLECTION
+  STRESS_TEST
+  MAMMOGRAPHY
+  XRAY
+  CONSULTATION
+  EYE_HEARING
+  OTHER
+}
+
+// ─── Tests ───────────────────────────────────────────────
+model Test {
+  id               String           @id @default(cuid())
+  centerId         String
+  center           Center           @relation(fields: [centerId], references: [id])
+  name             String
+  code             String
+  defaultDurationMin Int            @default(15)
+  requiresPrep     Boolean          @default(false)
+  prepInstructions String?
+  isActive         Boolean          @default(true)
+  displayOrder     Int              @default(0)
+  createdAt        DateTime         @default(now())
+  mappings         TestRoomMapping[]
+  visitTests       VisitTest[]
+}
+
+// ─── Test → Room Mapping ─────────────────────────────────
+model TestRoomMapping {
+  id        String  @id @default(cuid())
+  testId    String
+  test      Test    @relation(fields: [testId], references: [id])
+  roomId    String
+  room      Room    @relation(fields: [roomId], references: [id])
+  priority  Int     @default(1)
+  isDefault Boolean @default(true)
+
+  @@unique([testId, roomId])
+}
+
+// ─── Patients ────────────────────────────────────────────
+model Patient {
+  id         String   @id @default(cuid())
+  externalId String?  @unique
+  name       String
+  age        Int?
+  gender     String?
+  phone      String?
+  dob        DateTime?
+  createdAt  DateTime @default(now())
+  visits     Visit[]
+}
+
+// ─── Visits / Registrations ──────────────────────────────
+model Visit {
+  id             String      @id @default(cuid())
+  patientId      String
+  patient        Patient     @relation(fields: [patientId], references: [id])
+  centerId       String
+  center         Center      @relation(fields: [centerId], references: [id])
+  visitDate      DateTime    @default(now())
+  registrationNo String?
+  status         VisitStatus @default(ACTIVE)
+  externalRef    String?     @unique
+  notes          String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  visitTests     VisitTest[]
+}
+
+enum VisitStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+// ─── Per-visit test instances ────────────────────────────
+model VisitTest {
+  id          String          @id @default(cuid())
+  visitId     String
+  visit       Visit           @relation(fields: [visitId], references: [id])
+  testId      String
+  test        Test            @relation(fields: [testId], references: [id])
+  roomId      String?
+  status      VisitTestStatus @default(PENDING)
+  startedAt   DateTime?
+  completedAt DateTime?
+  notes       String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  queueEntry  QueueEntry?
+}
+
+enum VisitTestStatus {
+  PENDING
+  QUEUED
+  CALLING
+  IN_PROGRESS
+  COMPLETED
+  NOT_READY
+  SKIPPED
+}
+
+// ─── Queue entries per room ──────────────────────────────
+model QueueEntry {
+  id          String           @id @default(cuid())
+  visitTestId String           @unique
+  visitTest   VisitTest        @relation(fields: [visitTestId], references: [id])
+  roomId      String
+  room        Room             @relation(fields: [roomId], references: [id])
+  position    Int
+  status      QueueEntryStatus @default(WAITING)
+  slotTime    DateTime?
+  addedAt     DateTime         @default(now())
+  calledAt    DateTime?
+  pausedUntil DateTime?
+
+  @@index([roomId, status])
+}
+
+enum QueueEntryStatus {
+  WAITING
+  CALLED
+  IN_PROGRESS
+  PAUSED
+  DONE
+}
+
+// ─── Sonography / appointment slots ─────────────────────
+model SonographySlot {
+  id          String    @id @default(cuid())
+  roomId      String
+  room        Room      @relation(fields: [roomId], references: [id])
+  visitDate   DateTime
+  slotTime    DateTime
+  visitTestId String?   @unique
+  isBooked    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+}
+
+// ─── Queue rules ─────────────────────────────────────────
+model QueueRule {
+  id          String  @id @default(cuid())
+  centerId    String
+  center      Center  @relation(fields: [centerId], references: [id])
+  key         String
+  value       String
+  description String?
+
+  @@unique([centerId, key])
+}
+
+// ─── Audit events ────────────────────────────────────────
+model AuditEvent {
+  id         String   @id @default(cuid())
+  entityType String
+  entityId   String
+  action     String
+  actorType  String?
+  actorId    String?
+  data       Json?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+}
