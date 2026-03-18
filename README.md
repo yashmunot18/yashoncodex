@@ -15,7 +15,21 @@ A production-ready, Dockerized end-to-end queue management system for **NDC DIAG
 
 ---
 
-## Quick Start (5 steps)
+## Deploy to Railway (Cloud Hosting)
+
+Want to run this system on the internet instead of your local PC? Railway makes it easy — no server setup required.
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template)
+
+See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for the full step-by-step guide, including:
+- Creating Postgres and Redis add-ons with one click
+- Setting `RECEPTION_PROXY_BASE_URL` and `RECEPTION_PROXY_API_KEY` securely
+- Build and start commands for both `api` and `web` services
+- How to connect your GitHub repository and trigger deploys
+
+---
+
+## Quick Start (5 steps) — Local / Windows
 
 ### Step 1 – Prerequisites
 Make sure you have installed:
@@ -136,6 +150,82 @@ curl -X POST http://localhost:4000/api/sync/webhook \
       "visitDate": "'"$(date +%Y-%m-%d)"'"
     }]
   }'
+```
+
+---
+
+## Windows PowerShell Setup Script
+
+If you are on Windows and want to run everything in one shot, save the script below as `setup.ps1` anywhere on your PC and run it in PowerShell:
+
+```powershell
+# NDC QMS – Windows PowerShell one-shot setup script
+# Run from any folder. Requires Docker Desktop to be running.
+
+# If you forked the repository, replace the URL below with your own fork's URL:
+$repoUrl   = "https://github.com/yashmunot18/yashoncodex.git"
+$targetDir = "$env:USERPROFILE\ndc-qms"
+
+Write-Host "== NDC QMS Setup ==" -ForegroundColor Cyan
+
+# 1. Clone (skip if already present)
+if (-Not (Test-Path $targetDir)) {
+    Write-Host "Cloning repository to $targetDir ..." -ForegroundColor Yellow
+    git clone $repoUrl $targetDir
+} else {
+    Write-Host "Repository already exists at $targetDir — pulling latest..." -ForegroundColor Yellow
+    Set-Location $targetDir
+    git pull origin main
+}
+
+Set-Location $targetDir
+
+# 2. Create .env from example (skip if already exists)
+if (-Not (Test-Path ".env")) {
+    Write-Host "Creating .env from .env.example ..." -ForegroundColor Yellow
+    Copy-Item ".env.example" ".env"
+    Write-Host ""
+    Write-Host "ACTION NEEDED: Open .env in Notepad and fill in:" -ForegroundColor Green
+    Write-Host "  RECEPTION_PROXY_BASE_URL=https://your-reception-url.com"
+    Write-Host "  RECEPTION_PROXY_API_KEY=your-api-key"
+    Write-Host "(You can leave these blank to test without the reception proxy)" -ForegroundColor Gray
+    Write-Host ""
+    notepad .env
+    Read-Host "Press ENTER when you have saved .env and are ready to continue"
+} else {
+    Write-Host ".env already exists — skipping." -ForegroundColor Gray
+}
+
+# 3. Clean Docker state
+Write-Host "Cleaning Docker state..." -ForegroundColor Yellow
+docker compose down -v 2>$null
+docker builder prune -f 2>$null
+
+# 4. Build and start
+Write-Host "Building and starting services (this may take 3-5 minutes the first time)..." -ForegroundColor Yellow
+docker compose up --build
+
+# 5. Done
+Write-Host ""
+Write-Host "== System is running! Open these URLs in your browser: ==" -ForegroundColor Cyan
+Write-Host "  Home:          http://localhost:3000"
+Write-Host "  Floor Manager: http://localhost:3000/floor"
+Write-Host "  Room View:     http://localhost:3000/room"
+Write-Host "  Patient View:  http://localhost:3000/patient"
+Write-Host "  TV Display:    http://localhost:3000/tv"
+Write-Host "  Admin Panel:   http://localhost:3000/admin"
+Write-Host "  API Health:    http://localhost:4000/health"
+Write-Host ""
+Write-Host "Press Ctrl+C to stop the system." -ForegroundColor Gray
+```
+
+To run it:
+```powershell
+# Option A – run directly from PowerShell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\setup.ps1
+
+# Option B – right-click setup.ps1 → "Run with PowerShell"
 ```
 
 ---
