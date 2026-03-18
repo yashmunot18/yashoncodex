@@ -23,15 +23,35 @@ Make sure you have installed:
 - That's it!
 
 ### Step 2 – Clone the repository
-```bash
+
+> ⚠️ **Windows users:** Only clone once. If the folder `yashoncodex` already exists on your PC, skip the `git clone` line and go straight to `cd yashoncodex`. Cloning again *inside* the existing folder causes a nested-folder problem that breaks the build.
+
+**Windows Command Prompt (CMD) / PowerShell / Mac / Linux:**
+```
 git clone https://github.com/yashmunot18/yashoncodex.git
 cd yashoncodex
 ```
 
+If you see `fatal: destination path 'yashoncodex' already exists`, the folder is already there — just run:
+```bat
+cd yashoncodex
+```
+
 ### Step 3 – Set up environment
+
+**Mac / Linux:**
 ```bash
-# Copy the example environment file
 cp .env.example .env
+```
+
+**Windows CMD:**
+```bat
+copy .env.example .env
+```
+
+**Windows PowerShell:**
+```powershell
+Copy-Item .env.example .env
 ```
 
 Open `.env` in any text editor (even Notepad) and fill in:
@@ -141,6 +161,34 @@ curl -X POST http://localhost:4000/api/sync/webhook \
 ---
 
 ## Troubleshooting
+
+### 🚑 First Aid – build fails with `builder:latest` or bad cached state
+
+If you see an error like:
+```
+failed to resolve source metadata for docker.io/library/builder:latest
+```
+or the build fails with a confusing Docker cache error, run these three commands in order from inside the `yashoncodex` folder:
+
+**Windows CMD / PowerShell (or Mac/Linux terminal):**
+```bat
+docker compose down -v
+docker builder prune -f
+docker compose up --build
+```
+
+> ⚠️ `docker compose down -v` deletes the local database. Use it only when you want a completely clean start.
+
+If you accidentally cloned the repo *inside* itself (nested `yashoncodex\yashoncodex` folder), fix it first by navigating to the outer `yashoncodex` folder and removing the inner copy:
+
+**Windows CMD:**
+```bat
+rmdir /s /q yashoncodex
+```
+
+Then run the three commands above.
+
+---
 
 ### ❌ Port conflict (port 3000 or 4000 already in use)
 Edit `.env` and change:
