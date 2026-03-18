@@ -15,6 +15,20 @@ A production-ready, Dockerized end-to-end queue management system for **NDC DIAG
 
 ---
 
+## Super Simple Quickstart
+
+Not technical? No problem. See **[quickstart/README_QUICKSTART.md](quickstart/README_QUICKSTART.md)** for three zero-friction options:
+
+| Option | Best for | What you need |
+|--------|----------|---------------|
+| ☁️ **Railway (managed cloud)** | Absolute beginners — recommended | A Railway account (free) |
+| 🐳 **Docker Desktop (Windows)** | Anyone with Docker installed | Git + Docker Desktop |
+| 🐧 **WSL local install** | Developers on Windows without Docker | WSL / Ubuntu |
+
+> **Recommended for non-technical users:** Use Railway — one-click managed Postgres + Redis, no local installs required.
+
+---
+
 ## Quick Start (5 steps)
 
 ### Step 1 – Prerequisites

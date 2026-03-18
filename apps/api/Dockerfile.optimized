@@ -1,0 +1,24 @@
+# Dockerfile.optimized
+# Single-stage Dockerfile for local troubleshooting.
+# Use this when you want to iterate quickly without a multi-stage build.
+# Do NOT replace the original Dockerfile — the production build uses multi-stage.
+#
+# Usage:
+#   docker build -f Dockerfile.optimized -t yashoncodex-api-local .
+#   docker run --rm --env-file ../../.env -p 4000:4000 yashoncodex-api-local
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+RUN npm install
+
+COPY . .
+RUN npm run build
+
+ENV NODE_ENV=production
+EXPOSE 4000
+
+# Run migrations (idempotent), seed (idempotent), then start API
+CMD ["sh", "-c", "npx prisma migrate deploy || true; npx prisma db seed || true; node dist/index.js"]
