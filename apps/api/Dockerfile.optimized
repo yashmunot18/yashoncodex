@@ -1,0 +1,29 @@
+# ============================================================
+#  NDC API – Simplified Single-Stage Dockerfile
+#  Use this if the standard multi-stage Dockerfile causes
+#  issues with your local Docker setup.
+#
+#  Build:  docker build -f Dockerfile.optimized -t ndc-api .
+#  Run:    docker run -p 4000:4000 --env-file ../../.env ndc-api
+#
+#  Note: This file is intentionally NOT the primary Dockerfile.
+#  The standard Dockerfile (multi-stage) is still used by
+#  docker compose up. Use this only for local debugging.
+# ============================================================
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package files and install all dependencies (including devDeps for build)
+COPY package.json package-lock.json ./
+RUN npm install
+
+# Copy source and build
+COPY . .
+RUN npm run build
+
+EXPOSE 4000
+
+# Run migrations, seed (idempotent), then start
+CMD ["sh", "-c", "npx prisma migrate deploy && npx prisma db seed && node dist/index.js"]
