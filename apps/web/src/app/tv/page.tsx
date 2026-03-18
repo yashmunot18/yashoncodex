@@ -13,11 +13,13 @@ export default function TVPage() {
   const [rooms, setRooms] = useState<RoomDisplay[]>([]);
   const [time, setTime] = useState('');
 
-  const load = useCallback(async () => {
+      const load = useCallback(async () => {
     try {
       const res = await api.get('/api/display/tv');
       setRooms(res.data);
-    } catch {}
+    } catch (err) {
+      console.error('Failed to load TV display data:', err);
+    }
   }, []);
 
   useEffect(() => {

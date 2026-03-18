@@ -55,7 +55,8 @@ function RoomContent() {
     try {
       const res = await api.get(`/api/queue/rooms/${selectedRoom}`);
       setQueue(res.data);
-    } catch {
+    } catch (err) {
+      console.error('Failed to load queue:', err);
       toast.error('Failed to load queue');
     } finally {
       setLoading(false);

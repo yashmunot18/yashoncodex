@@ -25,7 +25,6 @@ async function main() {
       name: 'THANE',
       city: 'Thane',
       address: 'NDC Diagnostic Centre, Thane, Maharashtra',
-      phone: '',
     },
   });
 
