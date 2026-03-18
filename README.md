@@ -15,6 +15,119 @@ A production-ready, Dockerized end-to-end queue management system for **NDC DIAG
 
 ---
 
+## ☁️ Deploy to Cloud (Render — one click)
+
+> **No server required.** Render is a free managed cloud platform.  
+> Your queue system will be live at a public HTTPS URL — accessible from any browser, phone, or TV.
+
+### Option A – Render (recommended for non-technical users)
+
+| What you get | Detail |
+|---|---|
+| Web app URL | `https://ndc-qms-web.onrender.com` |
+| API URL | `https://ndc-qms-api.onrender.com` |
+| Database | Managed PostgreSQL (free) |
+| Cache | Managed Redis (free) |
+
+**Steps:**
+
+1. **Sign up** at [https://render.com](https://render.com) (free, use GitHub login).
+2. In the Render dashboard, click **New → Blueprint** and connect this GitHub repo (`yashmunot18/yashoncodex`).
+3. Render reads the `render.yaml` file and automatically creates:
+   - `ndc-qms-api` – API service
+   - `ndc-qms-web` – Web service
+   - `ndc-postgres` – PostgreSQL database
+   - `ndc-redis` – Redis cache
+4. Click **Apply** and wait ~5 minutes for the first build to finish.
+5. Once deployed, open your web URL:  
+   `https://ndc-qms-web.onrender.com`
+
+> **First-time note:** The free tier may take 30–60 seconds to wake up after being idle.  
+> If the web page shows "Failed to load", wait a moment and refresh.
+
+#### After deploy – verify the API URL
+
+The web service needs to know the API URL. Render sets this automatically, but verify once:
+
+1. In Render dashboard → **ndc-qms-api** → copy the service URL (e.g. `https://ndc-qms-api.onrender.com`).
+2. Go to **ndc-qms-web** → **Environment** → check `NEXT_PUBLIC_API_URL`.
+3. If it doesn't match, update it to `https://ndc-qms-api.onrender.com` and click **Save Changes**.  
+   Render will automatically redeploy the web service.
+
+#### Set reception proxy credentials (when ready)
+
+In Render dashboard → **ndc-qms-api** → **Environment**:
+
+| Variable | Value |
+|---|---|
+| `RECEPTION_PROXY_BASE_URL` | Your reception software URL |
+| `RECEPTION_PROXY_API_KEY` | Your API key |
+
+Save changes — Render redeploys automatically.
+
+---
+
+### Option B – Railway (alternative)
+
+Railway uses the `railway.toml` files in `apps/api/` and `apps/web/`.
+
+1. Sign up at [https://railway.app](https://railway.app).
+2. Create a **New Project** → **Deploy from GitHub** → select this repo.
+3. Add two services pointing to `apps/api` and `apps/web` subdirectories.
+4. Add **PostgreSQL** and **Redis** plugins from the Railway dashboard.
+5. Set environment variables (copy from `.env.example`):
+   - `DATABASE_URL` → copy from PostgreSQL plugin  
+   - `REDIS_URL` → copy from Redis plugin  
+   - `JWT_SECRET` → any random string (e.g. 32 random characters)  
+   - `RECEPTION_PROXY_BASE_URL` → leave blank for now  
+   - `RECEPTION_PROXY_API_KEY` → leave blank for now
+6. For the web service, set `NEXT_PUBLIC_API_URL` to the Railway URL of your API service.
+
+---
+
+## 🖥️ Windows Quick Setup (PowerShell — one command)
+
+If you want to run the system **locally on your Windows PC**, use the automated PowerShell script:
+
+### One-time setup
+
+1. **Install Docker Desktop** from [https://www.docker.com/products/docker-desktop/](https://www.docker.com/products/docker-desktop/) (free).
+2. Make sure Docker Desktop is running (whale icon in taskbar).
+3. Open **PowerShell** (search "PowerShell" in Start Menu).
+4. If prompted about execution policy, run this once:
+   ```powershell
+   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+   ```
+5. Run the setup script:
+   ```powershell
+   # Clone and run everything automatically:
+   git clone https://github.com/yashmunot18/yashoncodex.git
+   cd yashoncodex
+   .\scripts\setup-windows.ps1
+   ```
+
+The script will:
+- Pull the latest code
+- Create your `.env` file
+- Clean Docker state
+- Build and start all services
+- Show you all URLs when ready
+
+### After setup, open in browser
+
+| View | URL |
+|------|-----|
+| 🏠 Home / Role Selector | http://localhost:3000 |
+| ⚙️ Admin Panel | http://localhost:3000/admin |
+| 🏢 Floor Manager | http://localhost:3000/floor |
+| 🩺 Room Technician | http://localhost:3000/room |
+| 📱 Patient Status | http://localhost:3000/patient |
+| 📺 TV Display | http://localhost:3000/tv |
+| 🔧 API Health Check | http://localhost:4000/health |
+| 📚 API Documentation | http://localhost:4000/docs |
+
+---
+
 ## Quick Start (5 steps)
 
 ### Step 1 – Prerequisites
