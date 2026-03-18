@@ -1,0 +1,47 @@
+# Railway Service Definition – Web (Next.js)
+#
+# This file describes how to create the "web" service in Railway via the CLI.
+# Run: railway up  (from the apps/web directory, with a Railway project already linked)
+#
+# Required environment variables (set in Railway Dashboard → web service → Variables):
+#
+#   NEXT_PUBLIC_API_URL   The public Railway URL of the api service.
+#                         e.g. https://api-production-XXXX.up.railway.app
+#                         Railway can reference this automatically if you use a
+#                         reference variable: ${{api.RAILWAY_PUBLIC_DOMAIN}}
+#
+#   INTERNAL_API_URL      Internal Railway networking URL of the api service.
+#                         e.g. http://api.railway.internal:4000
+#                         Use Railway reference: http://${{api.RAILWAY_PRIVATE_DOMAIN}}:4000
+#
+#   NODE_ENV              Set to "production"
+#
+#   PORT                  Railway sets this automatically. No action needed.
+#
+# Build command  : npm ci && npm run build
+# Start command  : node .next/standalone/server.js
+# Root directory : apps/web
+# Port           : 3000  (Railway auto-assigns a public URL)
+#
+# The Next.js app uses output: "standalone" in next.config.js.
+# The standalone server is started directly via node .next/standalone/server.js.
+# Railway injects PORT automatically; the standalone server respects it.
+
+service:
+  name: web
+  source:
+    repo: yashmunot18/yashoncodex
+    branch: main
+    rootDirectory: apps/web
+  build:
+    builder: nixpacks
+    buildCommand: "npm ci && npm run build"
+  deploy:
+    startCommand: "node .next/standalone/server.js"
+    port: 3000
+    restartPolicy: on_failure
+  variables:
+    NODE_ENV: production
+    # --- Add the following in Railway Dashboard ---
+    # NEXT_PUBLIC_API_URL: https://<your-api-railway-domain>
+    # INTERNAL_API_URL: http://<api-private-hostname>:4000

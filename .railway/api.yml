@@ -1,0 +1,58 @@
+# Railway Service Definition – API
+#
+# This file describes how to create the "api" service in Railway via the CLI.
+# Run: railway up  (from the apps/api directory, with a Railway project already linked)
+#
+# Required environment variables (set in Railway Dashboard → api service → Variables):
+#
+#   DATABASE_URL          Auto-injected by Railway when you add a Postgres plugin.
+#                         Format: postgresql://USER:PASS@HOST:PORT/DBNAME
+#
+#   REDIS_URL             Auto-injected by Railway when you add a Redis plugin.
+#                         Format: redis://default:PASS@HOST:PORT
+#
+#   JWT_SECRET            A random secret string. Generate one with:
+#                           node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+#
+#   RECEPTION_PROXY_BASE_URL   Base URL of your external reception software proxy.
+#                              e.g. https://proxy.your-clinic-software.com
+#
+#   RECEPTION_PROXY_API_KEY    API key issued by your reception software vendor.
+#
+#   RECEPTION_PROXY_TIMEOUT_MS  (optional) Request timeout in ms. Default: 10000
+#
+#   RECEPTION_POLL_INTERVAL_MS  (optional) Poll interval in ms. Default: 60000
+#
+#   NODE_ENV              Set to "production"
+#
+# Build command  : npm ci && npx prisma generate && npm run build
+# Start command  : npx prisma migrate deploy && npx prisma db seed && node dist/index.js
+# Root directory : apps/api
+# Port           : 4000  (Railway auto-assigns a public URL)
+#
+# Health check path: /health
+
+service:
+  name: api
+  source:
+    repo: yashmunot18/yashoncodex
+    branch: main
+    rootDirectory: apps/api
+  build:
+    builder: nixpacks
+    buildCommand: "npm ci && npx prisma generate && npm run build"
+  deploy:
+    startCommand: "npx prisma migrate deploy && npx prisma db seed && node dist/index.js"
+    port: 4000
+    healthcheckPath: /health
+    restartPolicy: on_failure
+  variables:
+    NODE_ENV: production
+    # --- Add the following in Railway Dashboard (do NOT commit real values here) ---
+    # DATABASE_URL: (auto-injected from Postgres plugin)
+    # REDIS_URL: (auto-injected from Redis plugin)
+    # JWT_SECRET: <generate a random secret>
+    # RECEPTION_PROXY_BASE_URL: <your reception proxy URL>
+    # RECEPTION_PROXY_API_KEY: <your API key>
+    # RECEPTION_PROXY_TIMEOUT_MS: 10000
+    # RECEPTION_POLL_INTERVAL_MS: 60000
