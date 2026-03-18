@@ -50,7 +50,9 @@ async function bootstrap() {
   await app.register(displayRoutes, { prefix: '/api/display' });
   await app.register(floorRoutes, { prefix: '/api/floor' });
 
-  const port = parseInt(process.env.API_PORT ?? '4000', 10);
+  // PORT is the standard env var injected by Render/Railway; fall back to
+  // the repo-specific API_PORT for local Docker Compose, then hard-code 4000.
+  const port = parseInt(process.env.PORT ?? process.env.API_PORT ?? '4000', 10);
   await app.listen({ port, host: '0.0.0.0' });
   console.log(`🚀 NDC QMS API running on http://0.0.0.0:${port}`);
   console.log(`📚 API Docs: http://0.0.0.0:${port}/docs`);

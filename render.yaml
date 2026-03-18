@@ -1,0 +1,83 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# NDC Diagnostic Centre – Queue Management System
+# Render Blueprint  (https://render.com/docs/blueprint-spec)
+#
+# DEPLOY INSTRUCTIONS:
+#  1. Fork / connect this repo in Render: https://dashboard.render.com/new/blueprint
+#  2. Render will provision: API service, Web service, PostgreSQL, Redis
+#  3. After the API service is live, copy its URL (e.g. https://ndc-qms-api.onrender.com)
+#     and verify it matches NEXT_PUBLIC_API_URL in the ndc-qms-web service settings.
+#     If it differs, update the value in Render → ndc-qms-web → Environment and redeploy.
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  # ── API (Fastify + Prisma) ──────────────────────────────────────────────────
+  - type: web
+    name: ndc-qms-api
+    env: node
+    rootDir: apps/api
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npx prisma migrate deploy && npx prisma db seed && node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ndc-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: ndc-redis
+          property: connectionString
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      # ── Reception Proxy (leave blank until you have the credentials) ──
+      - key: RECEPTION_PROXY_BASE_URL
+        value: ""
+      - key: RECEPTION_PROXY_API_KEY
+        value: ""
+      - key: RECEPTION_PROXY_TIMEOUT_MS
+        value: "10000"
+      - key: RECEPTION_POLL_INTERVAL_MS
+        value: "60000"
+
+  # ── Web (Next.js 15 standalone) ─────────────────────────────────────────────
+  - type: web
+    name: ndc-qms-web
+    env: node
+    rootDir: apps/web
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node .next/standalone/server.js
+    healthCheckPath: /
+    envVars:
+      # Render resolves the API hostname before building the web service.
+      # next.config.js auto-prepends https:// when no protocol is present.
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          name: ndc-qms-api
+          type: web
+          property: host
+      - key: INTERNAL_API_URL
+        fromService:
+          name: ndc-qms-api
+          type: web
+          property: host
+      - key: NODE_ENV
+        value: production
+
+  # ── Redis ───────────────────────────────────────────────────────────────────
+  - type: redis
+    name: ndc-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+
+# ── PostgreSQL ─────────────────────────────────────────────────────────────────
+databases:
+  - name: ndc-postgres
+    databaseName: ndc_qms
+    user: ndc_user
+    plan: free
