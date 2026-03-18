@@ -208,7 +208,7 @@ docker compose down -v
 ```
 
 **Tech Stack:**
-- **Frontend:** Next.js 14 + TypeScript + Tailwind CSS
+- **Frontend:** Next.js 15 + TypeScript + Tailwind CSS
 - **Backend:** Fastify + TypeScript + Prisma ORM
 - **Database:** PostgreSQL 16
 - **Cache:** Redis 7
