@@ -3,6 +3,13 @@ import Link from 'next/link';
 export default function HomePage() {
   const views = [
     {
+      href: '/operations',
+      icon: '📊',
+      title: 'Operations Dashboard',
+      desc: 'Revenue targets, actual turnover, leads timeline, and profitability',
+      color: 'border-indigo-200 hover:border-indigo-400',
+    },
+    {
       href: '/floor',
       icon: '🏢',
       title: 'Floor Manager',
@@ -49,7 +56,7 @@ export default function HomePage() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-gray-900">NDC DIAGNOSTIC CENTRE</h1>
-            <p className="text-sm text-gray-500">Queue Management System · THANE</p>
+            <p className="text-sm text-gray-500">Operations + Queue Management · Multi-centre</p>
           </div>
         </div>
       </header>
@@ -57,7 +64,7 @@ export default function HomePage() {
       {/* Hero */}
       <div className="max-w-5xl mx-auto px-6 py-12">
         <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome</h2>
-        <p className="text-gray-500 mb-10">Select your role to get started</p>
+        <p className="text-gray-500 mb-10">Select a module to get started</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {views.map((v) => (
@@ -78,7 +85,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="text-center text-xs text-gray-400 pb-8">
-        NDC Diagnostic Centre · THANE · Queue Management System v1.0
+        NDC Diagnostic Centre · Operations, CRM, Profitability & Queue Management
       </footer>
     </main>
   );
