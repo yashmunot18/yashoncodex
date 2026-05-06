@@ -14,6 +14,7 @@ import queueRoutes from './routes/queue';
 import patientRoutes from './routes/patient';
 import displayRoutes from './routes/display';
 import floorRoutes from './routes/floor';
+import operationsRoutes from './routes/operations';
 
 export const prisma = new PrismaClient();
 
@@ -49,6 +50,7 @@ async function bootstrap() {
   await app.register(patientRoutes, { prefix: '/api/patient' });
   await app.register(displayRoutes, { prefix: '/api/display' });
   await app.register(floorRoutes, { prefix: '/api/floor' });
+  await app.register(operationsRoutes, { prefix: '/api/operations' });
 
   const port = parseInt(process.env.API_PORT ?? '4000', 10);
   await app.listen({ port, host: '0.0.0.0' });

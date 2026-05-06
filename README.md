@@ -10,6 +10,7 @@ A production-ready, Dockerized end-to-end queue management system for **NDC DIAG
 - **Dynamic Queue Management** – Automatically routes patients through rooms (Sonography, Blood Collection, X-Ray, etc.)
 - **4 Distinct Views** – Floor Manager, Room Technician, Patient Mobile, TV Display
 - **Admin Panel** – Non-technical staff can add/edit rooms, tests, and test-to-room assignments
+- **Operations Dashboard** – Multi-centre monthly revenue targets, actual turnover entry, lead tracking timeline, and profitability cost goals
 - **Sonography Slot Logic** – "Not Ready" (bladder not full) support with configurable wait time
 - **White Professional UI** – Clean, responsive design
 
@@ -65,6 +66,7 @@ docker compose up --build
 | View | URL |
 |------|-----|
 | 🏠 Home / Role Selector | http://localhost:3000 |
+| 📊 Operations Dashboard | http://localhost:3000/operations |
 | 🏢 Floor Manager | http://localhost:3000/floor |
 | 🩺 Room Technician | http://localhost:3000/room |
 | 📱 Patient Status | http://localhost:3000/patient |
@@ -97,6 +99,13 @@ When the system starts for the first time, it automatically creates:
 ---
 
 ## How to use the system
+
+### Operations Dashboard
+- Open http://localhost:3000/operations
+- Branches are pre-loaded as Kopat, Savarkar Nagar, GB Road, Rabodi, Kalyan, Seawoods, Kharghar, and Kurla
+- Track monthly targets and actual turnover by stream: Walk-in Sales, NDC Health Package, Doctor Referrals, TPA Sales, Corporate Business, Industrial Health Checkups, B2B, Franchises, and Hospitals
+- Add lead contact details, project status, estimated turnover, execution date, and follow-up date
+- Monitor a lead timeline grouped by status, plus centre profitability against cost targets and actual expenses
 
 ### Floor Manager
 - Open http://localhost:3000/floor

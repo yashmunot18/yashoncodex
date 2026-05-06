@@ -96,6 +96,66 @@ async function main() {
     });
   }
 
+
+  // ─── Business Operations Dashboard Defaults ───────────
+  const branchDefs = [
+    { id: 'branch-kopat', name: 'Kopat', displayOrder: 1 },
+    { id: 'branch-savarkar-nagar', name: 'Savarkar Nagar', displayOrder: 2 },
+    { id: 'branch-gb-road', name: 'GB Road', displayOrder: 3 },
+    { id: 'branch-rabodi', name: 'Rabodi', displayOrder: 4 },
+    { id: 'branch-kalyan', name: 'Kalyan', displayOrder: 5 },
+    { id: 'branch-seawoods', name: 'Seawoods', displayOrder: 6 },
+    { id: 'branch-kharghar', name: 'Kharghar', displayOrder: 7 },
+    { id: 'branch-kurla', name: 'Kurla', displayOrder: 8 },
+  ];
+
+  for (const branch of branchDefs) {
+    await prisma.businessBranch.upsert({
+      where: { id: branch.id },
+      update: { name: branch.name, displayOrder: branch.displayOrder, isActive: true },
+      create: { ...branch, centerId: center.id },
+    });
+  }
+
+  const revenueStreamDefs = [
+    { id: 'stream-walk-in-sales', name: 'Walk-in Sales', category: 'Retail', displayOrder: 1 },
+    { id: 'stream-ndc-health-package', name: 'NDC Health Package', category: 'Retail', displayOrder: 2 },
+    { id: 'stream-doctor-referrals', name: 'Doctor Referrals', category: 'Referral', displayOrder: 3 },
+    { id: 'stream-tpa-sales', name: 'TPA Sales', category: 'Standalone Category', displayOrder: 4 },
+    { id: 'stream-corporate-business', name: 'Corporate Business', category: 'Corporate', displayOrder: 5 },
+    { id: 'stream-industrial-health-checkups', name: 'Industrial Health Checkups', category: 'Corporate', displayOrder: 6 },
+    { id: 'stream-b2b', name: 'B2B', category: 'Partner', displayOrder: 7 },
+    { id: 'stream-franchises', name: 'Franchises', category: 'Partner', displayOrder: 8 },
+    { id: 'stream-hospitals', name: 'Hospitals', category: 'Partner', displayOrder: 9 },
+  ];
+
+  for (const stream of revenueStreamDefs) {
+    await prisma.revenueStream.upsert({
+      where: { id: stream.id },
+      update: { name: stream.name, category: stream.category, displayOrder: stream.displayOrder, isActive: true },
+      create: { ...stream, centerId: center.id },
+    });
+  }
+
+  const expenseCategoryDefs = [
+    { id: 'expense-rent', name: 'Rent', displayOrder: 1 },
+    { id: 'expense-salaries', name: 'Salaries', displayOrder: 2 },
+    { id: 'expense-consumables', name: 'Consumables', displayOrder: 3 },
+    { id: 'expense-electricity', name: 'Electricity', displayOrder: 4 },
+    { id: 'expense-maintenance', name: 'Machine Maintenance', displayOrder: 5 },
+    { id: 'expense-marketing', name: 'Marketing', displayOrder: 6 },
+    { id: 'expense-housekeeping', name: 'Housekeeping', displayOrder: 7 },
+    { id: 'expense-other', name: 'Other Expenses', displayOrder: 8 },
+  ];
+
+  for (const expense of expenseCategoryDefs) {
+    await prisma.expenseCategory.upsert({
+      where: { id: expense.id },
+      update: { name: expense.name, displayOrder: expense.displayOrder, isActive: true },
+      create: { ...expense, centerId: center.id },
+    });
+  }
+
   // ─── Queue Rules ────────────────────────────────────────
   const rules = [
     { key: 'sonography_not_ready_reentry_position', value: 'end_of_slot_group',    description: 'How to re-enter a not-ready sonography patient. Values: end_of_slot_group | absolute_end | configured_minutes' },
@@ -117,6 +177,8 @@ async function main() {
   console.log(`   Center  : ${center.name} (${center.city})`);
   console.log(`   Rooms   : ${roomDefs.length}`);
   console.log(`   Tests   : ${testDefs.length}`);
+  console.log(`   Branches: ${branchDefs.length}`);
+  console.log(`   Streams : ${revenueStreamDefs.length}`);
 }
 
 main()

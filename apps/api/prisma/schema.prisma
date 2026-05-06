@@ -32,6 +32,9 @@ model Center {
   visits     Visit[]
   queueRules QueueRule[]
   settings   CenterSettings?
+  businessBranches BusinessBranch[]
+  revenueStreams RevenueStream[]
+  expenseCategories ExpenseCategory[]
 }
 
 // ─── Center settings ─────────────────────────────────────
@@ -226,4 +229,156 @@ model AuditEvent {
   createdAt  DateTime @default(now())
 
   @@index([entityType, entityId])
+}
+
+
+// ─── Business planning / CRM / profitability ─────────────
+model BusinessBranch {
+  id           String   @id @default(cuid())
+  centerId     String
+  center       Center   @relation(fields: [centerId], references: [id])
+  name         String
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  revenueTargets MonthlyRevenueTarget[]
+  revenueActuals MonthlyRevenueActual[]
+  costTargets    MonthlyCostTarget[]
+  costActuals    MonthlyCostActual[]
+  leads          Lead[]
+
+  @@unique([centerId, name])
+  @@index([centerId, displayOrder])
+}
+
+model RevenueStream {
+  id           String   @id @default(cuid())
+  centerId     String
+  center       Center   @relation(fields: [centerId], references: [id])
+  name         String
+  category     String?
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  revenueTargets MonthlyRevenueTarget[]
+  revenueActuals MonthlyRevenueActual[]
+  leads          Lead[]
+
+  @@unique([centerId, name])
+  @@index([centerId, displayOrder])
+}
+
+model MonthlyRevenueTarget {
+  id        String         @id @default(cuid())
+  branchId  String
+  branch    BusinessBranch @relation(fields: [branchId], references: [id])
+  streamId  String
+  stream    RevenueStream  @relation(fields: [streamId], references: [id])
+  month     String
+  amount    Decimal        @db.Decimal(14, 2)
+  notes     String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@unique([branchId, streamId, month])
+  @@index([month])
+}
+
+model MonthlyRevenueActual {
+  id        String         @id @default(cuid())
+  branchId  String
+  branch    BusinessBranch @relation(fields: [branchId], references: [id])
+  streamId  String
+  stream    RevenueStream  @relation(fields: [streamId], references: [id])
+  month     String
+  amount    Decimal        @db.Decimal(14, 2)
+  notes     String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@unique([branchId, streamId, month])
+  @@index([month])
+}
+
+model ExpenseCategory {
+  id           String   @id @default(cuid())
+  centerId     String
+  center       Center   @relation(fields: [centerId], references: [id])
+  name         String
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  costTargets MonthlyCostTarget[]
+  costActuals MonthlyCostActual[]
+
+  @@unique([centerId, name])
+  @@index([centerId, displayOrder])
+}
+
+model MonthlyCostTarget {
+  id                String          @id @default(cuid())
+  branchId          String
+  branch            BusinessBranch  @relation(fields: [branchId], references: [id])
+  expenseCategoryId String
+  expenseCategory   ExpenseCategory @relation(fields: [expenseCategoryId], references: [id])
+  month             String
+  amount            Decimal         @db.Decimal(14, 2)
+  notes             String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@unique([branchId, expenseCategoryId, month])
+  @@index([month])
+}
+
+model MonthlyCostActual {
+  id                String          @id @default(cuid())
+  branchId          String
+  branch            BusinessBranch  @relation(fields: [branchId], references: [id])
+  expenseCategoryId String
+  expenseCategory   ExpenseCategory @relation(fields: [expenseCategoryId], references: [id])
+  month             String
+  amount            Decimal         @db.Decimal(14, 2)
+  notes             String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@unique([branchId, expenseCategoryId, month])
+  @@index([month])
+}
+
+model Lead {
+  id                 String         @id @default(cuid())
+  branchId           String
+  branch             BusinessBranch @relation(fields: [branchId], references: [id])
+  revenueStreamId    String?
+  revenueStream      RevenueStream? @relation(fields: [revenueStreamId], references: [id])
+  contactName        String
+  companyName        String?
+  phone              String?
+  email              String?
+  status             LeadStatus     @default(NEW)
+  projectDescription String?
+  estimatedTurnover  Decimal?       @db.Decimal(14, 2)
+  estimatedExecution DateTime?
+  nextFollowUp       DateTime?
+  notes              String?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  @@index([branchId, status])
+  @@index([estimatedExecution])
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  PROPOSAL
+  NEGOTIATION
+  WON
+  LOST
+  ON_HOLD
 }
